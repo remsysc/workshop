@@ -10,34 +10,11 @@ public class WorkshopApplication {
 
 		SpringApplication.run(WorkshopApplication.class, args);
 	}
-	// create own exception handles for api
-	// @ControllerAdvice
-
-
-	//compute download url using @afterMapping
-	// category mapper / dto
-	// image dto for all methods
-
-	// A
-	// soft checks on service layer for ux purpose , inventory checks etc
-	//Use mappers only when crossing the API boundary.
-
-	//implements
-
-//	// API-facing
-//	public interface ProductApiService {
-//		ProductDto getProductById(Long id);
-//		// …all methods returning DTO
-//	}
-//
-//	// Domain-level
-//	public interface ProductDomainService {
-//		Product findEntityById(Long id);
-//		// …domain operations on Product
-//	}
-// add when necessary @MapperConfig
-	// paging when needed
-
-	// FIX STATUS CODE 201 WHEN CREATED ETC NOT JUST 200
-	// THERE SHOULD BE NO INTERNAL SERVER ERROR AS RESPONSE
+// TODO: Implement GlobalExceptionHandler using @ControllerAdvice for API error responses
+// TODO: Add @AfterMapping in CategoryMapper to compute download URLs for images
+// TODO: Create ImageDto and CategoryDto for API responses
+// TODO: Add inventory checks in ProductService for better UX
+// TODO: Use @MapperConfig for shared mapper settings when needed
+// TODO: Implement pagination in ProductController endpoints
+// TODO: Return 201 status code for resource creation endpoints
 }
