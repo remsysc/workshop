@@ -1,9 +1,7 @@
 package com.sysc.workshop.user;
 
-import jakarta.persistence.Column;
-import lombok.Data;
-
 import java.util.UUID;
+import lombok.Data;
 
 @Data
 public class UserDto {

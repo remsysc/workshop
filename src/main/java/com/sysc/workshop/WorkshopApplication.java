@@ -16,5 +16,6 @@ public class WorkshopApplication {
 // TODO: Add inventory checks in ProductService for better UX
 // TODO: Use @MapperConfig for shared mapper settings when needed
 // TODO: Implement pagination in ProductController endpoints
-// TODO: Return 201 status code for resource creation endpoints
+// TODO: Return 201 status code for resource creation
+
 }

@@ -2,7 +2,6 @@ package com.sysc.workshop.order.mapper;
 
 import com.sysc.workshop.cart.model.CartItem;
 import com.sysc.workshop.order.model.OrderItem;
-import com.sysc.workshop.product.mapper.ProductMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,5 +11,4 @@ public interface CartItemToOrderItem {
     @Mapping(source = "unitPrice", target = "price")
     @Mapping(target = "order", ignore = true)
     OrderItem toOrderItem(CartItem item);
-
 }
