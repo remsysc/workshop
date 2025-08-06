@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -72,15 +74,13 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductDto> searchProducts(
-        String name,
-        String brand,
-        String category,
-        Integer page,
-        Integer size
+            String name,
+            String brand,
+            String category,
+            Pageable pageable
     ) {
-        return productMapper.toDtoList(
-            productRepository.searchProducts(name, brand, category, page, size)
-        );
+        Page<Product> productPage = productRepository.searchProducts(name, brand, category, pageable);
+        return productMapper.toDtoList(productPage.getContent());
     }
 
     @Override

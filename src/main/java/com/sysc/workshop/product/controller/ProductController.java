@@ -12,6 +12,9 @@ import com.sysc.workshop.product.service.product.IProductService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,11 +31,12 @@ public class ProductController {
         @RequestParam(required = false) String name,
         @RequestParam(required = false) String brand,
         @RequestParam(required = false) String category,
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer size
+        @RequestParam(defaultValue = "0") Integer page,
+        @RequestParam(defaultValue = "10") Integer size
     ){
-        List<ProductDto> products = iProductService.searchProducts(name, brand, category, page, size);
-            return ResponseEntity.ok(new ApiResponse("Success", products));
+        Pageable pageable = PageRequest.of(page, size);
+        List<ProductDto> products =  iProductService.searchProducts(name, brand, category, pageable);
+        return ResponseEntity.ok(new ApiResponse("Success", products));
     }
 
 
