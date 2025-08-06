@@ -27,9 +27,7 @@ public class ShopConfig {
 
     private final ShopUserDetailsService userDetailsService;
     private final JwtAuthEntryPoint authEntryPoint;
-    private static final List<String> SECURED_URLS = List.of(
-        "/api/v1/products/**"
-    );
+    private static final List<String> SECURED_URLS = List.of("/");
 
     @Bean
     public SecurityFilterChain securityFilterChain(@NonNull HttpSecurity http)

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +27,10 @@ public class ImageController {
 
     private final IImageService iImageService;
 
-    @PostMapping("/")
-    public ResponseEntity<ApiResponse> saveImages(
-        @RequestParam List<MultipartFile> files,
-        @RequestParam UUID productId
+    @PostMapping("")
+    public ResponseEntity<ApiResponse> uploadImages(
+        @RequestParam UUID productId,
+        @RequestBody List<MultipartFile> files
     ) {
         try {
             List<ImageDto> imageDtos = iImageService.saveImages(
@@ -37,7 +38,7 @@ public class ImageController {
                 productId
             );
 
-            return ResponseEntity.ok(
+            return ResponseEntity.status(HttpStatus.CREATED).body(
                 new ApiResponse("Upload success!", imageDtos)
             );
         } catch (Exception e) {
@@ -47,12 +48,12 @@ public class ImageController {
         }
     }
 
-    @GetMapping("/image/download/{imageId}")
+    @GetMapping("/image/{imageId}/download")
     public ResponseEntity<Resource> downloadImage(@PathVariable UUID imageId) {
         Image img = iImageService.getImageEntityById(imageId);
         ByteArrayResource resource = new ByteArrayResource(img.getImageData());
 
-        return ResponseEntity.ok()
+        return ResponseEntity.status(HttpStatus.OK)
             .contentType(MediaType.parseMediaType(img.getFileType()))
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,

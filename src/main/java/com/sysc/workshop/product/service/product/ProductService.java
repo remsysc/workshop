@@ -71,6 +71,19 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public List<ProductDto> searchProducts(
+        String name,
+        String brand,
+        String category,
+        Integer page,
+        Integer size
+    ) {
+        return productMapper.toDtoList(
+            productRepository.searchProducts(name, brand, category, page, size)
+        );
+    }
+
+    @Override
     public ProductDto updateProduct(UpdateProductRequest request, UUID id) {
         // tries to find the product,
         // if found, update and save,
@@ -131,47 +144,6 @@ public class ProductService implements IProductService {
     @Override
     public List<ProductDto> getAllProducts() {
         return productMapper.toDtoList(productRepository.findAll());
-    }
-
-    @Override
-    public List<ProductDto> getProductsByCategory(String category) {
-        return productMapper.toDtoList(
-            productRepository.findByCategory_Name(category)
-        );
-    }
-
-    @Override
-    public List<ProductDto> getProductsByBrand(String brand) {
-        return productMapper.toDtoList(productRepository.findByBrand(brand));
-    }
-
-    @Override
-    public List<ProductDto> getProductsByCategoryAndBrand(
-        String category,
-        String brand
-    ) {
-        List<Product> products = Optional.ofNullable(
-            productRepository.findByCategory_NameAndBrand(category, brand)
-        ).orElseThrow(() -> new ProductNotFoundException("Not Found!"));
-        return productMapper.toDtoList(products);
-    }
-
-    @Override
-    public List<ProductDto> getProductsByName(String name) {
-        return productMapper.toDtoList(productRepository.findByName(name));
-    }
-
-    @Override
-    public List<ProductDto> getProductsByBrandAndName(
-        String brand,
-        String name
-    ) {
-        Optional.ofNullable(
-            productRepository.findByBrandAndName(brand, name)
-        ).orElseThrow(() -> new ProductNotFoundException("Product Not Found!"));
-        return productMapper.toDtoList(
-            productRepository.findByBrandAndName(brand, name)
-        );
     }
 
     @Override
