@@ -1,6 +1,6 @@
 package com.sysc.workshop.product.service.image;
 
-import com.sysc.workshop.product.dto.ImageDto;
+import com.sysc.workshop.product.dto.image.ImageDto;
 import com.sysc.workshop.product.exception.ImageNotFoundException;
 import com.sysc.workshop.product.mapper.ImageMapper;
 import com.sysc.workshop.product.model.Image;

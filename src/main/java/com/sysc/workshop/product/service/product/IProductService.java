@@ -1,13 +1,12 @@
 package com.sysc.workshop.product.service.product;
 
-import com.sysc.workshop.product.dto.ProductDto;
+import com.sysc.workshop.product.dto.product.ProductDto;
 import com.sysc.workshop.product.model.Product;
 import com.sysc.workshop.product.request.AddProductRequest;
 import com.sysc.workshop.product.request.UpdateProductRequest;
-import org.springframework.data.domain.Pageable;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
 
 public interface IProductService {
     ProductDto addProduct(AddProductRequest product);
@@ -20,7 +19,7 @@ public interface IProductService {
         String name,
         String brand,
         String category,
-       Pageable pageable
+        Pageable pageable
     );
 
     Long countProductsByBrandAndName(String brand, String name);

@@ -6,9 +6,16 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 //response back to front end / client
-public class ApiResponse {
+public class ApiResponse<T> {
+
     private String message;
-    private  Object data;
+    private T data;
 
+    public static <T> ApiResponse<T> success(String msg, T data) {
+        return new ApiResponse<>(msg, data);
+    }
 
+    public static <T> ApiResponse<T> error(String message) {
+        return new ApiResponse<>(message, null);
+    }
 }

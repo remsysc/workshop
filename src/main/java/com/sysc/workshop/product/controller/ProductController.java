@@ -1,10 +1,14 @@
 package com.sysc.workshop.product.controller;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 
 import com.sysc.workshop.core.exception.AlreadyExistsException;
 import com.sysc.workshop.core.response.ApiResponse;
-import com.sysc.workshop.product.dto.ProductDto;
+import com.sysc.workshop.product.dto.product.ProductDto;
 import com.sysc.workshop.product.exception.ProductNotFoundException;
 import com.sysc.workshop.product.request.AddProductRequest;
 import com.sysc.workshop.product.request.UpdateProductRequest;
@@ -12,11 +16,19 @@ import com.sysc.workshop.product.service.product.IProductService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,7 +37,6 @@ public class ProductController {
 
     private final IProductService iProductService;
 
-    //FIXME: This method is commented out because it has the same endpoint as the one below.
     @GetMapping("/search")
     public ResponseEntity<ApiResponse> searchProducts(
         @RequestParam(required = false) String name,
@@ -33,19 +44,26 @@ public class ProductController {
         @RequestParam(required = false) String category,
         @RequestParam(defaultValue = "0") Integer page,
         @RequestParam(defaultValue = "10") Integer size
-    ){
+    ) {
         Pageable pageable = PageRequest.of(page, size);
-        List<ProductDto> products =  iProductService.searchProducts(name, brand, category, pageable);
-        return ResponseEntity.ok(new ApiResponse("Success", products));
+        List<ProductDto> products = iProductService.searchProducts(
+            name,
+            brand,
+            category,
+            pageable
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(
+            new ApiResponse("Success", products)
+        );
     }
-
-
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable UUID id) {
         try {
             ProductDto product = iProductService.getProductById(id);
-            return ResponseEntity.ok(new ApiResponse("Found", product));
+            return ResponseEntity.status(OK).body(
+                new ApiResponse("Found", product)
+            );
         } catch (ProductNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(
                 new ApiResponse("Not Found!", null)
@@ -94,7 +112,7 @@ public class ProductController {
     ) {
         try {
             ProductDto product = iProductService.updateProduct(request, id);
-            return ResponseEntity.ok(
+            return ResponseEntity.status(OK).body(
                 new ApiResponse("Updated Successfully!", product)
             );
         } catch (ProductNotFoundException e) {
@@ -110,7 +128,7 @@ public class ProductController {
     ) {
         try {
             iProductService.deleteProductById(id);
-            return ResponseEntity.ok(
+            return ResponseEntity.status(OK).body(
                 new ApiResponse("Deleted Successfully!", null)
             );
         } catch (ProductNotFoundException e) {
@@ -120,6 +138,7 @@ public class ProductController {
         }
     }
 
+    //TODO: Find a use case for this method or just remove it in the future
     public ResponseEntity<ApiResponse> countProductsByBrandAndName(
         String brand,
         String name

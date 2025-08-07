@@ -3,7 +3,7 @@ package com.sysc.workshop.product.service.product;
 import com.sysc.workshop.cart.repository.CartItemRepository;
 import com.sysc.workshop.core.exception.AlreadyExistsException;
 import com.sysc.workshop.order.repository.OrderItemRepository;
-import com.sysc.workshop.product.dto.ProductDto;
+import com.sysc.workshop.product.dto.product.ProductDto;
 import com.sysc.workshop.product.exception.ProductNotFoundException;
 import com.sysc.workshop.product.mapper.ProductMapper;
 import com.sysc.workshop.product.model.Category;
@@ -74,12 +74,17 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductDto> searchProducts(
-            String name,
-            String brand,
-            String category,
-            Pageable pageable
+        String name,
+        String brand,
+        String category,
+        Pageable pageable
     ) {
-        Page<Product> productPage = productRepository.searchProducts(name, brand, category, pageable);
+        Page<Product> productPage = productRepository.searchProducts(
+            name,
+            brand,
+            category,
+            pageable
+        );
         return productMapper.toDtoList(productPage.getContent());
     }
 

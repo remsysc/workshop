@@ -11,9 +11,9 @@ public class WorkshopApplication {
     }
     // TODO: Implement GlobalExceptionHandler using @ControllerAdvice for API error responses
     // TODO: Add @AfterMapping in CategoryMapper to compute download URLs for images
-    // TODO: Create ImageDto and CategoryDto for API responses
-    // TODO: Add inventory checks in ProductService for better UX
+    // TODO: Create ImageDto and CategoryDto for API responses (current)
     // TODO: Use @MapperConfig for shared mapper settings when needed
-    // TODO: Implement pagination in ProductController endpoints
+    // DONE: Implement pagination in ProductController endpoints
     // TODO: Return 201 status code for resource creation
+    // FIXME: Refine all endpoints, and copy the logic of category controller to other controllers
 }

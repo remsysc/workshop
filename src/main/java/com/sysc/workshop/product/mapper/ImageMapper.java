@@ -1,10 +1,9 @@
 package com.sysc.workshop.product.mapper;
 
-import com.sysc.workshop.product.dto.ImageDto;
+import com.sysc.workshop.product.dto.image.ImageDto;
 import com.sysc.workshop.product.model.Image;
-import org.mapstruct.Mapper;
-
 import java.util.List;
+import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ImageMapper {

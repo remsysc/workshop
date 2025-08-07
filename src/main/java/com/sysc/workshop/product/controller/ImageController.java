@@ -2,9 +2,10 @@ package com.sysc.workshop.product.controller;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 
 import com.sysc.workshop.core.response.ApiResponse;
-import com.sysc.workshop.product.dto.ImageDto;
+import com.sysc.workshop.product.dto.image.ImageDto;
 import com.sysc.workshop.product.exception.ImageNotFoundException;
 import com.sysc.workshop.product.model.Image;
 import com.sysc.workshop.product.service.image.IImageService;
@@ -48,7 +49,7 @@ public class ImageController {
         }
     }
 
-    @GetMapping("/image/{imageId}/download")
+    @GetMapping("/{imageId}/download")
     public ResponseEntity<Resource> downloadImage(@PathVariable UUID imageId) {
         Image img = iImageService.getImageEntityById(imageId);
         ByteArrayResource resource = new ByteArrayResource(img.getImageData());
@@ -70,7 +71,9 @@ public class ImageController {
         try {
             Image image = iImageService.getImageEntityById(imageId);
             iImageService.updateImage(file, imageId);
-            return ResponseEntity.ok(new ApiResponse("Update success!", image));
+            return ResponseEntity.status(OK).body(
+                new ApiResponse("Update success!", image)
+            );
         } catch (ImageNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(
                 new ApiResponse(e.getMessage(), null)
@@ -83,7 +86,9 @@ public class ImageController {
     public ResponseEntity<ApiResponse> deleteImage(@PathVariable UUID imageId) {
         try {
             iImageService.deleteImageById(imageId);
-            return ResponseEntity.ok(new ApiResponse("Delete success!", null));
+            return ResponseEntity.status(OK).body(
+                new ApiResponse("Delete success!", null)
+            );
         } catch (ImageNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(
                 new ApiResponse(e.getMessage(), null)
@@ -97,6 +102,6 @@ public class ImageController {
         @PathVariable UUID imageId
     ) {
         ImageDto img = iImageService.getImageById(imageId);
-        return ResponseEntity.ok(new ApiResponse("Success", img));
+        return ResponseEntity.status(OK).body(new ApiResponse("Success", img));
     }
 }
