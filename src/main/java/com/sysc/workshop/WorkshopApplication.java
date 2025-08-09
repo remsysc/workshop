@@ -15,5 +15,5 @@ public class WorkshopApplication {
     // TODO: Use @MapperConfig for shared mapper settings when needed
     // DONE: Implement pagination in ProductController endpoints
     // TODO: Return 201 status code for resource creation
-    // FIXME: Refine all endpoints, and copy the logic of category controller to other controllers
+    // FIXME: Refine all endpoints and status codes, and copy the logic of category controller to other controllers
 }

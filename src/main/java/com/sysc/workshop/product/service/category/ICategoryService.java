@@ -10,9 +10,9 @@ import java.util.UUID;
 public interface ICategoryService {
     Category getCategoryById(UUID id);
     Category getCategoryByName(String name);
-    List<Category> getAllCategories();
-    Category addCategory(Category category);
-    Category updateCategory(Category category, UUID id);
+    List<CategoryDto> getAllCategories();
+    CategoryDto addCategory(String category);
+    CategoryDto updateCategory(String category, UUID id);
     void deleteCategoryById(UUID id);
     PagedResponseDTO<CategoryDto> searchCategories(
         SearchCategoryRequestDTO requestDTO

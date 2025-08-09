@@ -3,7 +3,6 @@ package com.sysc.workshop.product.service.category;
 import com.sysc.workshop.core.exception.AlreadyExistsException;
 import com.sysc.workshop.product.dto.category.CategoryDto;
 import com.sysc.workshop.product.dto.category.SearchCategoryRequestDTO;
-import com.sysc.workshop.product.dto.category.SearchCategoryResponseDTO;
 import com.sysc.workshop.product.dto.common.PagedResponseDTO;
 import com.sysc.workshop.product.exception.CategoryNotFoundException;
 import com.sysc.workshop.product.mapper.CategoryMapper;
@@ -44,37 +43,44 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryDto> getAllCategories() {
+        List<CategoryDto> categoryDtos = categoryMapper.toDtoList(
+            categoryRepository.findAll()
+        );
+        return categoryDtos;
     }
 
     @Override
-    public Category addCategory(Category category) {
-        return Optional.of(category)
-            .filter(c -> !categoryRepository.existsByName(c.getName()))
-            .map(categoryRepository::save)
-            .orElseThrow(() ->
-                new AlreadyExistsException(
-                    category.getName() + " already exists!"
-                )
-            );
+    public CategoryDto addCategory(String category) {
+        if (categoryRepository.existsByName(category)) {
+            throw new AlreadyExistsException(category + " already exists!");
+        }
+
+        return categoryMapper.toDto(
+            categoryRepository.save(new Category(category))
+        );
     }
 
     @Override
     //find the old category by id, and replace the name if found
     // request is not needed since its only one data
-    public Category updateCategory(
-        Category newCategory,
-        UUID existingCategory_id
-    ) {
-        return Optional.ofNullable(getCategoryById(existingCategory_id))
-            .map(existingCategory -> {
-                existingCategory.setName(newCategory.getName());
-                return categoryRepository.save(existingCategory);
-            })
-            .orElseThrow(() ->
-                new CategoryNotFoundException("Category Not Found!")
-            );
+    public CategoryDto updateCategory(String newCategory, UUID id) {
+        if (categoryRepository.existsByName(newCategory)) {
+            throw new AlreadyExistsException(newCategory + " already exists!");
+        }
+
+        Optional<Category> category = categoryRepository.findById(id);
+        category.ifPresentOrElse(
+            c -> {
+                c.setName(newCategory);
+                categoryRepository.save(c);
+            },
+            () -> {
+                throw new CategoryNotFoundException("Category Not Found!");
+            }
+        );
+
+        return categoryMapper.toDto(category.get());
     }
 
     @Override

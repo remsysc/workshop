@@ -38,7 +38,7 @@ public class ProductController {
     private final IProductService iProductService;
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse> searchProducts(
+    public ResponseEntity<ApiResponse<ProductDto>> searchProducts(
         @RequestParam(required = false) String name,
         @RequestParam(required = false) String brand,
         @RequestParam(required = false) String category,
