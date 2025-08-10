@@ -8,18 +8,19 @@ import static org.springframework.http.HttpStatus.OK;
 
 import com.sysc.workshop.core.exception.AlreadyExistsException;
 import com.sysc.workshop.core.response.ApiResponse;
+import com.sysc.workshop.product.dto.common.PagedResponseDTO;
 import com.sysc.workshop.product.dto.product.ProductDto;
+import com.sysc.workshop.product.dto.product.SearchProductRequestDTO;
+import com.sysc.workshop.product.dto.product.SearchProductResponseDTO;
 import com.sysc.workshop.product.exception.ProductNotFoundException;
 import com.sysc.workshop.product.request.AddProductRequest;
 import com.sysc.workshop.product.request.UpdateProductRequest;
 import com.sysc.workshop.product.service.product.IProductService;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,119 +39,127 @@ public class ProductController {
     private final IProductService iProductService;
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<ProductDto>> searchProducts(
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) String brand,
-        @RequestParam(required = false) String category,
-        @RequestParam(defaultValue = "0") Integer page,
-        @RequestParam(defaultValue = "10") Integer size
+    public ResponseEntity<ApiResponse<SearchProductResponseDTO>> searchProducts(
+        @Validated SearchProductRequestDTO request
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        List<ProductDto> products = iProductService.searchProducts(
-            name,
-            brand,
-            category,
-            pageable
-        );
-        return ResponseEntity.status(HttpStatus.OK).body(
-            new ApiResponse("Success", products)
-        );
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getProductById(@PathVariable UUID id) {
         try {
-            ProductDto product = iProductService.getProductById(id);
-            return ResponseEntity.status(OK).body(
-                new ApiResponse("Found", product)
+            PagedResponseDTO<ProductDto> pagedResponseDTO =
+                iProductService.searchProducts(request);
+
+            // convert response to SearchResponseDto
+            SearchProductResponseDTO response = new SearchProductResponseDTO(
+                pagedResponseDTO
             );
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(
-                new ApiResponse("Not Found!", null)
+            return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success("Success", response)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                ApiResponse.error(e.getLocalizedMessage())
             );
         }
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllProducts(
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer size
+    public ResponseEntity<
+        ApiResponse<PagedResponseDTO<ProductDto>>
+    > getAllProducts(
+        @RequestParam(defaultValue = "0") Integer page,
+        @RequestParam(defaultValue = "10") Integer size
     ) {
         try {
-            List<ProductDto> products = iProductService.getAllProducts();
-            return ResponseEntity.ok(new ApiResponse("Success", products));
+            PagedResponseDTO<ProductDto> products =
+                iProductService.getAllProducts(page, size);
+
+            return ResponseEntity.ok(ApiResponse.success("Success", products));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(
-                new ApiResponse(e.getMessage(), INTERNAL_SERVER_ERROR)
+                ApiResponse.error(e.getMessage())
+            );
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ProductDto>> getProductById(
+        @PathVariable UUID id
+    ) {
+        try {
+            ProductDto product = iProductService.getProductById(id);
+            return ResponseEntity.status(OK).body(
+                ApiResponse.success("Found", product)
+            );
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND).body(
+                ApiResponse.error("Not Found")
             );
         }
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> addProduct(
+    public ResponseEntity<ApiResponse<ProductDto>> addProduct(
         @RequestBody AddProductRequest request
     ) {
         try {
             ProductDto product = iProductService.addProduct(request);
             return ResponseEntity.status(CREATED).body(
-                new ApiResponse(
+                ApiResponse.success(
                     "Product: " + product.getName() + " successfully created!",
                     product
                 )
             );
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(CONFLICT).body(
-                new ApiResponse(e.getMessage(), null)
+                ApiResponse.error(e.getMessage())
             );
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateProduct(
+    public ResponseEntity<ApiResponse<ProductDto>> updateProduct(
         @RequestBody UpdateProductRequest request,
         @PathVariable UUID id
     ) {
         try {
             ProductDto product = iProductService.updateProduct(request, id);
             return ResponseEntity.status(OK).body(
-                new ApiResponse("Updated Successfully!", product)
+                ApiResponse.success("Updated Successfully!", product)
             );
         } catch (ProductNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(
-                new ApiResponse(e.getMessage(), null)
+                ApiResponse.error(e.getMessage())
             );
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteProductById(
+    public ResponseEntity<ApiResponse<Void>> deleteProductById(
         @PathVariable UUID id
     ) {
         try {
             iProductService.deleteProductById(id);
             return ResponseEntity.status(OK).body(
-                new ApiResponse("Deleted Successfully!", null)
+                ApiResponse.success("Deleted Successfully!", null)
             );
         } catch (ProductNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(
-                new ApiResponse(e.getMessage(), null)
+                ApiResponse.error(e.getMessage())
             );
         }
     }
 
-    //TODO: Find a use case for this method or just remove it in the future
-    public ResponseEntity<ApiResponse> countProductsByBrandAndName(
-        String brand,
-        String name
-    ) {
-        try {
-            Long number = iProductService.countProductsByBrandAndName(
-                brand,
-                name
-            );
-            return ResponseEntity.ok(new ApiResponse("Success", number));
-        } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponse(e.getMessage(), null));
-        }
-    }
+    // //TODO: Find a use case for this method or just remove it in the future
+    // public ResponseEntity<ApiResponse> countProductsByBrandAndName(
+    //     String brand,
+    //     String name
+    // ) {
+    //     try {
+    //         Long number = iProductService.countProductsByBrandAndName(
+    //             brand,
+    //             name
+    //         );
+    //         return ResponseEntity.ok(new ApiResponse("Success", number));
+    //     } catch (Exception e) {
+    //         return ResponseEntity.ok(new ApiResponse(e.getMessage(), null));
+    //     }
+    // }
 }

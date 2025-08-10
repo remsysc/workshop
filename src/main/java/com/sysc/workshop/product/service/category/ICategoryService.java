@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ICategoryService {
-    Category getCategoryById(UUID id);
+    CategoryDto getCategoryById(UUID id);
     Category getCategoryByName(String name);
     List<CategoryDto> getAllCategories();
     CategoryDto addCategory(String category);

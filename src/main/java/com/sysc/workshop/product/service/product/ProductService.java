@@ -3,7 +3,9 @@ package com.sysc.workshop.product.service.product;
 import com.sysc.workshop.cart.repository.CartItemRepository;
 import com.sysc.workshop.core.exception.AlreadyExistsException;
 import com.sysc.workshop.order.repository.OrderItemRepository;
+import com.sysc.workshop.product.dto.common.PagedResponseDTO;
 import com.sysc.workshop.product.dto.product.ProductDto;
+import com.sysc.workshop.product.dto.product.SearchProductRequestDTO;
 import com.sysc.workshop.product.exception.ProductNotFoundException;
 import com.sysc.workshop.product.mapper.ProductMapper;
 import com.sysc.workshop.product.model.Category;
@@ -17,7 +19,9 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -73,19 +77,21 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<ProductDto> searchProducts(
-        String name,
-        String brand,
-        String category,
-        Pageable pageable
+    public PagedResponseDTO<ProductDto> searchProducts(
+        SearchProductRequestDTO request
     ) {
+        PageRequest page = PageRequest.of(request.getPage(), request.getSize());
         Page<Product> productPage = productRepository.searchProducts(
-            name,
-            brand,
-            category,
-            pageable
+            request.getName(),
+            request.getBrand(),
+            request.getCategory(),
+            page
         );
-        return productMapper.toDtoList(productPage.getContent());
+        if (productPage.isEmpty()) {
+            throw new ProductNotFoundException("No Products found!");
+        }
+        Page<ProductDto> dtoPage = productPage.map(productMapper::toDto);
+        return PagedResponseDTO.fromPage(dtoPage, dtoPage.getContent());
     }
 
     @Override
@@ -147,8 +153,17 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<ProductDto> getAllProducts() {
-        return productMapper.toDtoList(productRepository.findAll());
+    public PagedResponseDTO<ProductDto> getAllProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(
+            page,
+            size,
+            Sort.by("name").ascending()
+        );
+        Page<Product> pageResult = productRepository.findAll(pageable);
+        List<ProductDto> productDtos = pageResult
+            .map(productMapper::toDto)
+            .toList();
+        return PagedResponseDTO.fromPage(pageResult, productDtos);
     }
 
     @Override

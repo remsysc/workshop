@@ -25,12 +25,13 @@ public class CategoryService implements ICategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public Category getCategoryById(UUID id) {
-        return categoryRepository
+    public CategoryDto getCategoryById(UUID id) {
+        Category category = categoryRepository
             .findById(id)
             .orElseThrow(() ->
                 new CategoryNotFoundException("Category Not Found!")
             );
+        return categoryMapper.toDto(category);
     }
 
     @Override

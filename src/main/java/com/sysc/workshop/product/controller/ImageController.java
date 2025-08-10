@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("${api.prefix}/images")
@@ -36,7 +37,7 @@ public class ImageController {
 
     private final IImageService iImageService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<ApiResponse<List<ImageDto>>> uploadImages(
         @RequestParam UUID productId,
         @RequestBody List<MultipartFile> files
@@ -62,6 +63,10 @@ public class ImageController {
         Image img = iImageService.getImageEntityById(imageId);
         ByteArrayResource resource = new ByteArrayResource(img.getImageData());
 
+        if (img == null || resource == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Image Not Found");
+        }
+
         return ResponseEntity.status(HttpStatus.OK)
             .contentType(MediaType.parseMediaType(img.getFileType()))
             .header(
@@ -72,12 +77,12 @@ public class ImageController {
     }
 
     @PutMapping("/{imageId}")
-    public ResponseEntity<ApiResponse<Image>> updateImage(
+    public ResponseEntity<ApiResponse<ImageDto>> updateImage(
         @PathVariable UUID imageId,
         @RequestBody MultipartFile file
     ) {
         try {
-            Image image = iImageService.getImageEntityById(imageId);
+            ImageDto image = iImageService.getImageById(imageId);
             iImageService.updateImage(file, imageId);
             return ResponseEntity.status(OK).body(
                 ApiResponse.success("Update success!", image)
@@ -91,7 +96,7 @@ public class ImageController {
     }
 
     @DeleteMapping("/{imageId}")
-    public ResponseEntity<ApiResponse<Image>> deleteImage(
+    public ResponseEntity<ApiResponse<ImageDto>> deleteImage(
         @PathVariable UUID imageId
     ) {
         try {

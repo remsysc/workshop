@@ -12,7 +12,6 @@ import com.sysc.workshop.product.dto.category.SearchCategoryRequestDTO;
 import com.sysc.workshop.product.dto.category.SearchCategoryResponseDTO;
 import com.sysc.workshop.product.dto.common.PagedResponseDTO;
 import com.sysc.workshop.product.exception.CategoryNotFoundException;
-import com.sysc.workshop.product.model.Category;
 import com.sysc.workshop.product.service.category.ICategoryService;
 import java.util.List;
 import java.util.UUID;
@@ -35,8 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
 
     private final ICategoryService iCategoryService;
-
-    //TODO: Use DTO for request and response bodies
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getAllCategories() {
@@ -118,7 +115,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Category>> deleteCategoryById(
+    public ResponseEntity<ApiResponse<CategoryDto>> deleteCategoryById(
         @PathVariable UUID id
     ) {
         try {
@@ -134,11 +131,11 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Category>> getCategoryById(
+    public ResponseEntity<ApiResponse<CategoryDto>> getCategoryById(
         @PathVariable UUID id
     ) {
         try {
-            Category category = iCategoryService.getCategoryById(id);
+            CategoryDto category = iCategoryService.getCategoryById(id);
             return ResponseEntity.status(OK).body(
                 ApiResponse.success("Found", category)
             );
