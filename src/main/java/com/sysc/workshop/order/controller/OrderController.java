@@ -1,20 +1,26 @@
 package com.sysc.workshop.order.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import com.sysc.workshop.core.response.ApiResponse;
 import com.sysc.workshop.order.dto.OrderDto;
-import com.sysc.workshop.order.exception.OrderNotFound;
 import com.sysc.workshop.order.service.Order.IOrderService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
+@Validated
 @RequestMapping("${api.prefix}/orders")
 public class OrderController {
 
@@ -24,59 +30,49 @@ public class OrderController {
     // delete order
     // get all orders
 
-    @PostMapping("/")
-    ResponseEntity<ApiResponse> placeOrder(@RequestParam UUID userId) {
-        try {
-            OrderDto order = orderService.placeOrder(userId);
-            return ResponseEntity.status(CREATED).body(
-                new ApiResponse("Order successfully created!", order)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(
-                new ApiResponse(e.getMessage(), null)
-            );
-        }
+    @PostMapping
+    ResponseEntity<ApiResponse<OrderDto>> placeOrder(
+        @Valid @PathVariable UUID userId
+    ) {
+        OrderDto order = orderService.placeOrder(userId);
+        return ResponseEntity.status(CREATED).body(
+            ApiResponse.success("Order successfully created!", order)
+        );
     }
 
     @GetMapping("/{orderId}")
-    ResponseEntity<ApiResponse> getOrderById(@PathVariable UUID orderId) {
-        try {
-            OrderDto order = orderService.getOrderById(orderId);
-            return ResponseEntity.status(200).body(
-                new ApiResponse("Success", order)
-            );
-        } catch (OrderNotFound e) {
-            return ResponseEntity.status(404).body(
-                new ApiResponse(e.getMessage(), null)
-            );
-        }
+    ResponseEntity<ApiResponse<OrderDto>> getOrderById(
+        @Valid @PathVariable UUID orderId
+    ) {
+        OrderDto order = orderService.getOrderById(orderId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+            ApiResponse.success("Success", order)
+        );
     }
 
-    @GetMapping("/user/{userId}")
-    ResponseEntity<ApiResponse> getOrderByUserId(@PathVariable UUID userId) {
-        try {
-            OrderDto order = orderService.getUserOrder(userId);
-            return ResponseEntity.status(200).body(
-                new ApiResponse("Success", order)
-            );
-        } catch (OrderNotFound e) {
-            return ResponseEntity.status(404).body(
-                new ApiResponse(e.getMessage(), null)
-            );
-        }
-    }
+    // @GetMapping("/user/{userId}")
+    // ResponseEntity<ApiResponse<OrderDto>> getOrderByUserId(
+    //     @PathVariable UUID userId
+    // ) {
+    //     try {
+    //         OrderDto order = orderService.getUserOrder(userId);
+    //         return ResponseEntity.status(HttpStatus.OK).body(
+    //             ApiResponse.success("Success", order)
+    //         );
+    //     } catch (OrderNotFound e) {
+    //         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(
+    //             ApiResponse.error(e.getMessage())
+    //         );
+    //     }
+    // }
 
-    @GetMapping("/user/orders/{userId}")
-    ResponseEntity<ApiResponse> getOrdersByUserId(@PathVariable UUID userId) {
-        try {
-            List<OrderDto> order = orderService.getUserOrders(userId);
-            return ResponseEntity.status(200).body(
-                new ApiResponse("Success", order)
-            );
-        } catch (OrderNotFound e) {
-            return ResponseEntity.status(404).body(
-                new ApiResponse(e.getMessage(), null)
-            );
-        }
+    @GetMapping("/user//{userId}")
+    ResponseEntity<ApiResponse<List<OrderDto>>> getOrdersByUserId(
+        @Valid @PathVariable UUID userId
+    ) {
+        List<OrderDto> order = orderService.getUserOrders(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+            ApiResponse.success("Success", order)
+        );
     }
 }

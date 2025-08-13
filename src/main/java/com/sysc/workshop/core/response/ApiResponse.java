@@ -15,7 +15,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>(msg, data);
     }
 
-    public static <T> ApiResponse<T> error(String message) {
-        return new ApiResponse<>(message, null);
+    public static <T> ApiResponse<T> error(String message, T data) {
+        return new ApiResponse<>(message, data);
     }
 }

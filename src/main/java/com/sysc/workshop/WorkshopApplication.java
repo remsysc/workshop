@@ -9,9 +9,9 @@ public class WorkshopApplication {
     public static void main(String[] args) {
         SpringApplication.run(WorkshopApplication.class, args);
     }
-    // TODO: Implement GlobalExceptionHandler using @ControllerAdvice for API error responses
+    // DONE: Implement GlobalExceptionHandler using @ControllerAdvice for API error responses
     // TODO: Add @AfterMapping in CategoryMapper to compute download URLs for images
-    // TODO: Create ImageDto and CategoryDto for API responses (current)
+    // DONE: Create ImageDto and CategoryDto for API responses (current)
     // TODO: Use @MapperConfig for shared mapper settings when needed
     // DONE: Implement pagination in ProductController endpoints
     // TODO: Return 201 status code for resource creation

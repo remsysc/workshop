@@ -1,21 +1,17 @@
 package com.sysc.workshop.product.controller;
 
-import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-import com.sysc.workshop.core.exception.AlreadyExistsException;
 import com.sysc.workshop.core.response.ApiResponse;
 import com.sysc.workshop.product.dto.common.PagedResponseDTO;
 import com.sysc.workshop.product.dto.product.ProductDto;
 import com.sysc.workshop.product.dto.product.SearchProductRequestDTO;
 import com.sysc.workshop.product.dto.product.SearchProductResponseDTO;
-import com.sysc.workshop.product.exception.ProductNotFoundException;
 import com.sysc.workshop.product.request.AddProductRequest;
 import com.sysc.workshop.product.request.UpdateProductRequest;
 import com.sysc.workshop.product.service.product.IProductService;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
+@Validated
 @RestController
 @RequestMapping("${api.prefix}/products")
 public class ProductController {
@@ -40,111 +37,77 @@ public class ProductController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<SearchProductResponseDTO>> searchProducts(
-        @Validated SearchProductRequestDTO request
+        @Valid SearchProductRequestDTO request
     ) {
-        try {
-            PagedResponseDTO<ProductDto> pagedResponseDTO =
-                iProductService.searchProducts(request);
+        PagedResponseDTO<ProductDto> pagedResponseDTO =
+            iProductService.searchProducts(request);
 
-            // convert response to SearchResponseDto
-            SearchProductResponseDTO response = new SearchProductResponseDTO(
-                pagedResponseDTO
-            );
-            return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.success("Success", response)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                ApiResponse.error(e.getLocalizedMessage())
-            );
-        }
+        // convert response to SearchResponseDto
+        SearchProductResponseDTO response = new SearchProductResponseDTO(
+            pagedResponseDTO
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(
+            ApiResponse.success("Success", response)
+        );
     }
 
     @GetMapping
     public ResponseEntity<
         ApiResponse<PagedResponseDTO<ProductDto>>
     > getAllProducts(
-        @RequestParam(defaultValue = "0") Integer page,
-        @RequestParam(defaultValue = "10") Integer size
+        @Valid @RequestParam(defaultValue = "0") Integer page,
+        @Valid @RequestParam(defaultValue = "10") Integer size
     ) {
-        try {
-            PagedResponseDTO<ProductDto> products =
-                iProductService.getAllProducts(page, size);
+        PagedResponseDTO<ProductDto> products = iProductService.getAllProducts(
+            page,
+            size
+        );
 
-            return ResponseEntity.ok(ApiResponse.success("Success", products));
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(
-                ApiResponse.error(e.getMessage())
-            );
-        }
+        return ResponseEntity.ok(ApiResponse.success("Success", products));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDto>> getProductById(
-        @PathVariable UUID id
+        @Valid @PathVariable UUID id
     ) {
-        try {
-            ProductDto product = iProductService.getProductById(id);
-            return ResponseEntity.status(OK).body(
-                ApiResponse.success("Found", product)
-            );
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(
-                ApiResponse.error("Not Found")
-            );
-        }
+        ProductDto product = iProductService.getProductById(id);
+        return ResponseEntity.status(OK).body(
+            ApiResponse.success("Found", product)
+        );
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductDto>> addProduct(
-        @RequestBody AddProductRequest request
+        @Valid @RequestBody AddProductRequest request
     ) {
-        try {
-            ProductDto product = iProductService.addProduct(request);
-            return ResponseEntity.status(CREATED).body(
-                ApiResponse.success(
-                    "Product: " + product.getName() + " successfully created!",
-                    product
-                )
-            );
-        } catch (AlreadyExistsException e) {
-            return ResponseEntity.status(CONFLICT).body(
-                ApiResponse.error(e.getMessage())
-            );
-        }
+        ProductDto product = iProductService.addProduct(request);
+        return ResponseEntity.status(CREATED).body(
+            ApiResponse.success(
+                "Product: " + product.getName() + " successfully created!",
+                product
+            )
+        );
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDto>> updateProduct(
-        @RequestBody UpdateProductRequest request,
-        @PathVariable UUID id
+        @Valid @RequestBody UpdateProductRequest request,
+        @Valid @PathVariable UUID id
     ) {
-        try {
-            ProductDto product = iProductService.updateProduct(request, id);
-            return ResponseEntity.status(OK).body(
-                ApiResponse.success("Updated Successfully!", product)
-            );
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(
-                ApiResponse.error(e.getMessage())
-            );
-        }
+        ProductDto product = iProductService.updateProduct(request, id);
+        return ResponseEntity.status(OK).body(
+            ApiResponse.success("Updated Successfully!", product)
+        );
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProductById(
-        @PathVariable UUID id
+        @Valid @PathVariable UUID id
     ) {
-        try {
-            iProductService.deleteProductById(id);
-            return ResponseEntity.status(OK).body(
-                ApiResponse.success("Deleted Successfully!", null)
-            );
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(
-                ApiResponse.error(e.getMessage())
-            );
-        }
+        iProductService.deleteProductById(id);
+        return ResponseEntity.status(OK).body(
+            ApiResponse.success("Deleted Successfully!", null)
+        );
     }
 
     // //TODO: Find a use case for this method or just remove it in the future

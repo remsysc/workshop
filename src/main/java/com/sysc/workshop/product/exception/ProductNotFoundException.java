@@ -1,7 +1,10 @@
 package com.sysc.workshop.product.exception;
 
-public class ProductNotFoundException extends RuntimeException{
-    public ProductNotFoundException(String message) {
-        super(message);
+import com.sysc.workshop.core.exception.ResourceNotFound;
+
+public class ProductNotFoundException extends ResourceNotFound {
+
+    public ProductNotFoundException(String id) {
+        super("Product/s not found: " + id);
     }
 }

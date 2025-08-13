@@ -84,11 +84,7 @@ public class ImageService implements IImageService {
         return imageMapper.toDto(
             imageRepository
                 .findById(id)
-                .orElseThrow(() ->
-                    new ImageNotFoundException(
-                        "No image not found with id: " + id
-                    )
-                )
+                .orElseThrow(() -> new ImageNotFoundException(id.toString()))
         );
     }
 
@@ -96,9 +92,7 @@ public class ImageService implements IImageService {
     public Image getImageEntityById(UUID id) {
         return imageRepository
             .findById(id)
-            .orElseThrow(() ->
-                new ImageNotFoundException("No image not found with id: " + id)
-            );
+            .orElseThrow(() -> new ImageNotFoundException(id.toString()));
     }
 
     @Override
@@ -106,7 +100,7 @@ public class ImageService implements IImageService {
         imageRepository
             .findById(id)
             .ifPresentOrElse(imageRepository::delete, () -> {
-                throw new ImageNotFoundException("Image Not Found!");
+                throw new ImageNotFoundException(id.toString());
             });
     }
 }

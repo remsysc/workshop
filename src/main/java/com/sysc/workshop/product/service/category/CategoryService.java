@@ -1,9 +1,9 @@
 package com.sysc.workshop.product.service.category;
 
-import com.sysc.workshop.core.exception.AlreadyExistsException;
 import com.sysc.workshop.product.dto.category.CategoryDto;
 import com.sysc.workshop.product.dto.category.SearchCategoryRequestDTO;
 import com.sysc.workshop.product.dto.common.PagedResponseDTO;
+import com.sysc.workshop.product.exception.CategoryAlreadyExists;
 import com.sysc.workshop.product.exception.CategoryNotFoundException;
 import com.sysc.workshop.product.mapper.CategoryMapper;
 import com.sysc.workshop.product.model.Category;
@@ -28,9 +28,7 @@ public class CategoryService implements ICategoryService {
     public CategoryDto getCategoryById(UUID id) {
         Category category = categoryRepository
             .findById(id)
-            .orElseThrow(() ->
-                new CategoryNotFoundException("Category Not Found!")
-            );
+            .orElseThrow(() -> new CategoryNotFoundException(id.toString()));
         return categoryMapper.toDto(category);
     }
 
@@ -38,9 +36,7 @@ public class CategoryService implements ICategoryService {
     public Category getCategoryByName(String name) {
         return Optional.ofNullable(
             categoryRepository.findByName(name)
-        ).orElseThrow(() ->
-            new CategoryNotFoundException("Category Not Found!")
-        );
+        ).orElseThrow(() -> new CategoryNotFoundException(name));
     }
 
     @Override
@@ -54,7 +50,7 @@ public class CategoryService implements ICategoryService {
     @Override
     public CategoryDto addCategory(String category) {
         if (categoryRepository.existsByName(category)) {
-            throw new AlreadyExistsException(category + " already exists!");
+            throw new CategoryAlreadyExists(category);
         }
 
         return categoryMapper.toDto(
@@ -67,7 +63,7 @@ public class CategoryService implements ICategoryService {
     // request is not needed since its only one data
     public CategoryDto updateCategory(String newCategory, UUID id) {
         if (categoryRepository.existsByName(newCategory)) {
-            throw new AlreadyExistsException(newCategory + " already exists!");
+            throw new CategoryAlreadyExists(newCategory);
         }
 
         Optional<Category> category = categoryRepository.findById(id);
@@ -77,7 +73,7 @@ public class CategoryService implements ICategoryService {
                 categoryRepository.save(c);
             },
             () -> {
-                throw new CategoryNotFoundException("Category Not Found!");
+                throw new CategoryNotFoundException(id.toString());
             }
         );
 
@@ -89,7 +85,7 @@ public class CategoryService implements ICategoryService {
         categoryRepository
             .findById(id)
             .ifPresentOrElse(categoryRepository::delete, () -> {
-                throw new CategoryNotFoundException("Category Not Found!");
+                throw new CategoryNotFoundException(id.toString());
             });
     }
 

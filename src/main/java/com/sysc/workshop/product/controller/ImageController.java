@@ -9,6 +9,7 @@ import com.sysc.workshop.product.dto.image.ImageDto;
 import com.sysc.workshop.product.exception.ImageNotFoundException;
 import com.sysc.workshop.product.model.Image;
 import com.sysc.workshop.product.service.image.IImageService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@Validated
 @RequestMapping("${api.prefix}/images")
 @RequiredArgsConstructor
 public class ImageController {
@@ -39,8 +42,8 @@ public class ImageController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<List<ImageDto>>> uploadImages(
-        @RequestParam UUID productId,
-        @RequestBody List<MultipartFile> files
+        @Valid @RequestParam UUID productId,
+        @Valid @RequestBody List<MultipartFile> files
     ) {
         try {
             List<ImageDto> imageDtos = iImageService.saveImages(
@@ -53,13 +56,15 @@ public class ImageController {
             );
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(
-                ApiResponse.error(e.getMessage())
+                ApiResponse.error(e.getMessage(), null)
             );
         }
     }
 
     @GetMapping("/{imageId}/download")
-    public ResponseEntity<Resource> downloadImage(@PathVariable UUID imageId) {
+    public ResponseEntity<Resource> downloadImage(
+        @Valid @PathVariable UUID imageId
+    ) {
         Image img = iImageService.getImageEntityById(imageId);
         ByteArrayResource resource = new ByteArrayResource(img.getImageData());
 
@@ -78,8 +83,8 @@ public class ImageController {
 
     @PutMapping("/{imageId}")
     public ResponseEntity<ApiResponse<ImageDto>> updateImage(
-        @PathVariable UUID imageId,
-        @RequestBody MultipartFile file
+        @Valid @PathVariable UUID imageId,
+        @Valid @RequestBody MultipartFile file
     ) {
         try {
             ImageDto image = iImageService.getImageById(imageId);
@@ -89,7 +94,7 @@ public class ImageController {
             );
         } catch (ImageNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(
-                ApiResponse.error(e.getMessage())
+                ApiResponse.error(e.getMessage(), null)
             );
         }
         // return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse("Update failed!", INTERNAL_SERVER_ERROR));
@@ -97,7 +102,7 @@ public class ImageController {
 
     @DeleteMapping("/{imageId}")
     public ResponseEntity<ApiResponse<ImageDto>> deleteImage(
-        @PathVariable UUID imageId
+        @Valid @PathVariable UUID imageId
     ) {
         try {
             iImageService.deleteImageById(imageId);
@@ -106,7 +111,7 @@ public class ImageController {
             );
         } catch (ImageNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(
-                ApiResponse.error(e.getMessage())
+                ApiResponse.error(e.getMessage(), null)
             );
         }
         //  return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse("Delete failed!", INTERNAL_SERVER_ERROR));
@@ -114,7 +119,7 @@ public class ImageController {
 
     @GetMapping("/{imageId}")
     public ResponseEntity<ApiResponse<ImageDto>> getImageById(
-        @PathVariable UUID imageId
+        @Valid @PathVariable UUID imageId
     ) {
         ImageDto img = iImageService.getImageById(imageId);
         return ResponseEntity.status(OK).body(

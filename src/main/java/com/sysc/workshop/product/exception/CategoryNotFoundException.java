@@ -1,7 +1,10 @@
 package com.sysc.workshop.product.exception;
 
-public class CategoryNotFoundException extends RuntimeException {
-    public CategoryNotFoundException(String message) {
-        super(message);
+import com.sysc.workshop.core.exception.ResourceNotFound;
+
+public class CategoryNotFoundException extends ResourceNotFound {
+
+    public CategoryNotFoundException(String id) {
+        super("Category not found: " + id);
     }
 }

@@ -88,7 +88,7 @@ public class ProductService implements IProductService {
             page
         );
         if (productPage.isEmpty()) {
-            throw new ProductNotFoundException("No Products found!");
+            throw new ProductNotFoundException("");
         }
         Page<ProductDto> dtoPage = productPage.map(productMapper::toDto);
         return PagedResponseDTO.fromPage(dtoPage, dtoPage.getContent());
@@ -105,9 +105,7 @@ public class ProductService implements IProductService {
                 updateExistingProduct(existingProduct, request)
             )
             .map(productRepository::save)
-            .orElseThrow(() ->
-                new ProductNotFoundException("Product Not Found!")
-            );
+            .orElseThrow(() -> new ProductNotFoundException(id.toString()));
         return productMapper.toDto(product);
     }
 
@@ -146,9 +144,7 @@ public class ProductService implements IProductService {
     public ProductDto getProductById(UUID id) {
         Product product = productRepository
             .findById(id)
-            .orElseThrow(() ->
-                new ProductNotFoundException("Product Not Found!")
-            );
+            .orElseThrow(() -> new ProductNotFoundException(id.toString()));
         return productMapper.toDto(product);
     }
 
@@ -176,8 +172,6 @@ public class ProductService implements IProductService {
     public Product getProductEntityById(UUID id) {
         return productRepository
             .findById(id)
-            .orElseThrow(() ->
-                new ProductNotFoundException("Product Not Found!")
-            );
+            .orElseThrow(() -> new ProductNotFoundException(id.toString()));
     }
 }
