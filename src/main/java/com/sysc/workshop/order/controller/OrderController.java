@@ -14,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -30,9 +30,9 @@ public class OrderController {
     // delete order
     // get all orders
 
-    @PostMapping
+    @GetMapping
     ResponseEntity<ApiResponse<OrderDto>> placeOrder(
-        @Valid @PathVariable UUID userId
+        @Valid @RequestParam UUID userId
     ) {
         OrderDto order = orderService.placeOrder(userId);
         return ResponseEntity.status(CREATED).body(
@@ -66,7 +66,7 @@ public class OrderController {
     //     }
     // }
 
-    @GetMapping("/user//{userId}")
+    @GetMapping("/user/{userId}")
     ResponseEntity<ApiResponse<List<OrderDto>>> getOrdersByUserId(
         @Valid @PathVariable UUID userId
     ) {
