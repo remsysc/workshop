@@ -4,14 +4,13 @@ import com.sysc.workshop.cart.model.Cart;
 import com.sysc.workshop.core.role.Role;
 import com.sysc.workshop.order.model.Order;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.NaturalId;
-
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import lombok.*;
+import org.hibernate.annotations.NaturalId;
 
 @Getter
 @Setter
@@ -21,6 +20,7 @@ import java.util.UUID;
 @Builder
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
@@ -38,15 +38,40 @@ public class User {
     private LocalDateTime createdAt;
 
     // 1 user can have many orders
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "user",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
     private List<Order> orders;
 
-   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private  Cart cart;
+    @OneToOne(
+        mappedBy = "user",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private Cart cart;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @ManyToMany(
+        fetch = FetchType.EAGER,
+        cascade = {
+            CascadeType.DETACH,
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+            CascadeType.REFRESH,
+        }
+    )
+    @JoinTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(
+            name = "user_id",
+            referencedColumnName = "id"
+        ),
+        inverseJoinColumns = @JoinColumn(
+            name = "role_id",
+            referencedColumnName = "id"
+        )
+    )
     @Builder.Default
     private Collection<Role> roles = new HashSet<>();
 
@@ -56,11 +81,8 @@ public class User {
         this.password = password;
     }
 
-
-
     @PrePersist
-    protected void onCreated(){
+    protected void onCreated() {
         this.createdAt = LocalDateTime.now();
     }
-
 }

@@ -1,6 +1,6 @@
 package com.sysc.workshop.core.security.jwt;
 
-import com.sysc.workshop.core.security.user.ShopUserDetailsService;
+import com.sysc.workshop.core.security.user.SecurityUserDetailsService;
 import io.jsonwebtoken.JwtException;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -18,7 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     private JwtUtils jwtUtils;
-    private ShopUserDetailsService userDetailsService;
+    private SecurityUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(

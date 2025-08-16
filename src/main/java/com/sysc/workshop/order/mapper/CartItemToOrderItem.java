@@ -10,5 +10,6 @@ public interface CartItemToOrderItem {
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "unitPrice", target = "price")
     @Mapping(target = "order", ignore = true)
+    @Mapping(source = "product.id", target = "product.id")
     OrderItem toOrderItem(CartItem item);
 }

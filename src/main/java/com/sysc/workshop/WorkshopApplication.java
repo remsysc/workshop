@@ -11,8 +11,13 @@ public class WorkshopApplication {
     }
     // DONE: Implement GlobalExceptionHandler using @ControllerAdvice for API error responses
     // TODO: Add @AfterMapping in CategoryMapper to compute download URLs for images
-    // DONE: Create ImageDto and CategoryDto for API responses (current)
+    // DONE: Create ImageDto and CategoryDto for API responses
     // TODO: Use @MapperConfig for shared mapper settings when needed
-    // TODO: Implement pagination in Order and cart endpoints
+    // TODO: Implement pagination in Order and cart endpointsss
     // DONE: Refine all endpoints
+    // TODO: Implements OAUTH2 / OIDC
+    // TODO: Fix all endpoints so that only authenticated users can access what
+    // TODO: Add exceptions of security to global Advice
+    // TODO: create auth controller and log in request for login / logout
+    // FUCK IM ALMOST DONE WITH THIS BACK END!!!!!!!!
 }

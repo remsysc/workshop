@@ -1,7 +1,6 @@
 package com.sysc.workshop.order.dto;
 
 import com.sysc.workshop.core.constant.OrderStatus;
-import com.sysc.workshop.order.model.OrderItem;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -16,5 +15,5 @@ public class OrderDto {
     private LocalDateTime createdAt;
     private BigDecimal totalAmount;
     private OrderStatus status;
-    private Set<OrderItem> orderItems = new HashSet<>();
+    private Set<OrderItemDto> orderItems = new HashSet<>();
 }

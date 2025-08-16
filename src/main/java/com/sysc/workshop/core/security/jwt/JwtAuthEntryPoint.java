@@ -5,15 +5,28 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 @Component
+/*
+Runs only on unauthenticated access attempts.
+Instead of Spring’s default (redirect to login page), it:
+Sets Content-Type to JSON.
+Sets status to 401 UNAUTHORIZED.
+Writes a structured JSON body:
+*/
+
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper;
+
+    public JwtAuthEntryPoint(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void commence(
@@ -24,13 +37,22 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        final Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        body.put("error", "Unauthorized");
-        body.put("message", authException.getMessage());
-        body.put("path", request.getServletPath());
+        ErrorResponse errorResponse = new ErrorResponse(
+            Instant.now(),
+            HttpServletResponse.SC_UNAUTHORIZED,
+            "Unauthorized",
+            "Full authentication is required to access this resource",
+            request.getServletPath()
+        );
 
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getOutputStream(), body);
+        objectMapper.writeValue(response.getOutputStream(), errorResponse);
     }
+
+    public record ErrorResponse(
+        Instant timestamp,
+        int status,
+        String error,
+        String message,
+        String path
+    ) {}
 }

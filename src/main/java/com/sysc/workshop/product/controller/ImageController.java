@@ -1,12 +1,10 @@
 package com.sysc.workshop.product.controller;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.sysc.workshop.core.response.ApiResponse;
 import com.sysc.workshop.product.dto.image.ImageDto;
-import com.sysc.workshop.product.exception.ImageNotFoundException;
 import com.sysc.workshop.product.model.Image;
 import com.sysc.workshop.product.service.image.IImageService;
 import jakarta.validation.Valid;
@@ -45,20 +43,11 @@ public class ImageController {
         @Valid @RequestParam UUID productId,
         @Valid @RequestBody List<MultipartFile> files
     ) {
-        try {
-            List<ImageDto> imageDtos = iImageService.saveImages(
-                files,
-                productId
-            );
+        List<ImageDto> imageDtos = iImageService.saveImages(files, productId);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.success("Upload success!", imageDtos)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(
-                ApiResponse.error(e.getMessage(), null)
-            );
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            ApiResponse.success("Upload success!", imageDtos)
+        );
     }
 
     @GetMapping("/{imageId}/download")
@@ -86,35 +75,21 @@ public class ImageController {
         @Valid @PathVariable UUID imageId,
         @Valid @RequestBody MultipartFile file
     ) {
-        try {
-            ImageDto image = iImageService.getImageById(imageId);
-            iImageService.updateImage(file, imageId);
-            return ResponseEntity.status(OK).body(
-                ApiResponse.success("Update success!", image)
-            );
-        } catch (ImageNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(
-                ApiResponse.error(e.getMessage(), null)
-            );
-        }
-        // return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse("Update failed!", INTERNAL_SERVER_ERROR));
+        ImageDto image = iImageService.getImageById(imageId);
+        iImageService.updateImage(file, imageId);
+        return ResponseEntity.status(OK).body(
+            ApiResponse.success("Update success!", image)
+        );
     }
 
     @DeleteMapping("/{imageId}")
     public ResponseEntity<ApiResponse<ImageDto>> deleteImage(
         @Valid @PathVariable UUID imageId
     ) {
-        try {
-            iImageService.deleteImageById(imageId);
-            return ResponseEntity.status(OK).body(
-                ApiResponse.success("Delete success!", null)
-            );
-        } catch (ImageNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(
-                ApiResponse.error(e.getMessage(), null)
-            );
-        }
-        //  return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse("Delete failed!", INTERNAL_SERVER_ERROR));
+        iImageService.deleteImageById(imageId);
+        return ResponseEntity.status(OK).body(
+            ApiResponse.success("Delete success!", null)
+        );
     }
 
     @GetMapping("/{imageId}")

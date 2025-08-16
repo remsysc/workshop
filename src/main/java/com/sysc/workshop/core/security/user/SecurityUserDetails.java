@@ -2,6 +2,7 @@ package com.sysc.workshop.core.security.user;
 
 import com.sysc.workshop.user.model.User;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -15,7 +16,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Setter
 //Spring Security uses this object during authentication to check credentials and authorities.
-public class ShopUserDetails implements UserDetails {
+
+//Purpose: Wraps your domain User into what Spring Security understands
+//  (username, password, authorities).
+// Authorities: Converts each Role into a SimpleGrantedAuthority.
+// Spring Security checks these for access decisions.
+
+public class SecurityUserDetails implements UserDetails {
 
     private UUID id;
     private String email;
@@ -23,17 +30,17 @@ public class ShopUserDetails implements UserDetails {
 
     private Collection<GrantedAuthority> authorities;
 
-    public static ShopUserDetails buildUserDetails(User user) {
+    public static SecurityUserDetails buildUserDetails(User user) {
         List<GrantedAuthority> authorities = user
             .getRoles()
             .stream()
             .map(role -> new SimpleGrantedAuthority(role.getName()))
             .collect(Collectors.toList());
-        return new ShopUserDetails(
+        return new SecurityUserDetails(
             user.getId(),
             user.getEmail(),
             user.getPassword(),
-            authorities
+            Collections.unmodifiableList(authorities) //should never be modified once built
         );
     }
 

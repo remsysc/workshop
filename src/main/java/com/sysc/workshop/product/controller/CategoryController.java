@@ -64,7 +64,7 @@ public class CategoryController {
         @Valid @RequestParam String name
     ) {
         CategoryDto category = iCategoryService.addCategory(name);
-        return ResponseEntity.status(OK).body(
+        return ResponseEntity.status(HttpStatus.CREATED).body(
             ApiResponse.success("Added successfully!", category)
         );
     }
