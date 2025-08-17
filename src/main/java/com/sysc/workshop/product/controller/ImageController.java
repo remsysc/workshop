@@ -3,6 +3,8 @@ package com.sysc.workshop.product.controller;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
+import com.sysc.workshop.core.annotation.IsAdmin;
+import com.sysc.workshop.core.annotation.IsViewer;
 import com.sysc.workshop.core.response.ApiResponse;
 import com.sysc.workshop.product.dto.image.ImageDto;
 import com.sysc.workshop.product.model.Image;
@@ -38,6 +40,7 @@ public class ImageController {
 
     private final IImageService iImageService;
 
+    @IsAdmin
     @PostMapping
     public ResponseEntity<ApiResponse<List<ImageDto>>> uploadImages(
         @Valid @RequestParam UUID productId,
@@ -50,6 +53,7 @@ public class ImageController {
         );
     }
 
+    @IsViewer
     @GetMapping("/{imageId}/download")
     public ResponseEntity<Resource> downloadImage(
         @Valid @PathVariable UUID imageId
@@ -70,6 +74,7 @@ public class ImageController {
             .body(resource);
     }
 
+    @IsAdmin
     @PutMapping("/{imageId}")
     public ResponseEntity<ApiResponse<ImageDto>> updateImage(
         @Valid @PathVariable UUID imageId,
@@ -82,6 +87,7 @@ public class ImageController {
         );
     }
 
+    @IsAdmin
     @DeleteMapping("/{imageId}")
     public ResponseEntity<ApiResponse<ImageDto>> deleteImage(
         @Valid @PathVariable UUID imageId
@@ -92,6 +98,7 @@ public class ImageController {
         );
     }
 
+    @IsAdmin
     @GetMapping("/{imageId}")
     public ResponseEntity<ApiResponse<ImageDto>> getImageById(
         @Valid @PathVariable UUID imageId

@@ -2,6 +2,7 @@ package com.sysc.workshop.order.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
+import com.sysc.workshop.core.annotation.IsUser;
 import com.sysc.workshop.core.response.ApiResponse;
 import com.sysc.workshop.order.dto.OrderDto;
 import com.sysc.workshop.order.service.Order.IOrderService;
@@ -29,7 +30,7 @@ public class OrderController {
     //get order
     // delete order
     // get all orders
-
+    @IsUser
     @GetMapping
     ResponseEntity<ApiResponse<OrderDto>> placeOrder(
         @Valid @RequestParam UUID userId
@@ -37,16 +38,6 @@ public class OrderController {
         OrderDto order = orderService.placeOrder(userId);
         return ResponseEntity.status(CREATED).body(
             ApiResponse.success("Order successfully created!", order)
-        );
-    }
-
-    @GetMapping("/{orderId}")
-    ResponseEntity<ApiResponse<OrderDto>> getOrderById(
-        @Valid @PathVariable UUID orderId
-    ) {
-        OrderDto order = orderService.getOrderById(orderId);
-        return ResponseEntity.status(HttpStatus.OK).body(
-            ApiResponse.success("Success", order)
         );
     }
 
@@ -66,6 +57,7 @@ public class OrderController {
     //     }
     // }
     // todo: add pagination
+    @IsUser
     @GetMapping("/user/{userId}")
     ResponseEntity<ApiResponse<List<OrderDto>>> getOrdersByUserId(
         @Valid @PathVariable UUID userId

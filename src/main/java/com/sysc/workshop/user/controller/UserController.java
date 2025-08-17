@@ -4,6 +4,8 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
+import com.sysc.workshop.core.annotation.IsAdmin;
+import com.sysc.workshop.core.annotation.IsUser;
 import com.sysc.workshop.core.response.ApiResponse;
 import com.sysc.workshop.user.UserDto;
 import com.sysc.workshop.user.request.CreateUserRequest;
@@ -33,7 +35,7 @@ public class UserController {
     //get user/s
     //delete user
     // update user
-
+    @IsAdmin
     @PostMapping("/")
     ResponseEntity<ApiResponse<UserDto>> createUser(
         @Valid @RequestBody CreateUserRequest request
@@ -44,6 +46,7 @@ public class UserController {
         );
     }
 
+    @IsUser
     @GetMapping("/{userId}")
     ResponseEntity<ApiResponse<UserDto>> getUserById(
         @PathVariable UUID userId
@@ -54,6 +57,7 @@ public class UserController {
         );
     }
 
+    @IsAdmin
     @PutMapping("/")
     ResponseEntity<ApiResponse<UserDto>> updateUser(
         @RequestBody UpdateUserRequest request,
@@ -65,6 +69,7 @@ public class UserController {
         );
     }
 
+    @IsAdmin
     @DeleteMapping("/")
     ResponseEntity<ApiResponse<UserDto>> deleteUser(@PathVariable UUID userId) {
         userService.deleteUserById(userId);

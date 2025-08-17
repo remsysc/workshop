@@ -6,17 +6,18 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 //Token Generation & Validation
-@Component
 /*
 The “token factory” and “token inspector.”
 It doesn’t care how you authenticated —
@@ -26,7 +27,8 @@ and produces a signed JWT for stateless sessions.
 It also verifies and decodes incoming JWTs.
 
 */
-
+@RequiredArgsConstructor
+@Component
 public class JwtUtils {
 
     @Value("${auth.token.jwtSecret}")
@@ -34,6 +36,14 @@ public class JwtUtils {
 
     @Value("${auth.token.expirationInMils}")
     private long expirationTime;
+
+    private SecretKey key;
+
+    @PostConstruct
+    void init() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret.trim());
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     //Extracts the authenticated SecurityUserDetails.
     //
@@ -45,30 +55,33 @@ public class JwtUtils {
 
     /** Generate a signed JWT for the authenticated user */
     public String generateTokenForUser(Authentication authentication) {
-        SecurityUserDetails user =
-            (SecurityUserDetails) authentication.getPrincipal();
+        String username = authentication.getName();
 
-        List<String> roles = user
+        List<String> roles = authentication
             .getAuthorities()
             .stream()
             .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toList());
+            .toList();
 
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationTime);
+        Date expiry = new Date(System.currentTimeMillis() + expirationTime);
 
         return Jwts.builder()
-            .subject(user.getEmail()) // non-deprecated
-            .claim("id", user.getId().toString())
+            .subject(username) // non-deprecated
             .claim("roles", roles)
             .issuedAt(now)
             .expiration(expiry)
-            .signWith(getSigningKey()) // non-deprecated
+            .signWith(key, Jwts.SIG.HS256) // non-deprecated
             .compact();
     }
 
     public String getUsernameFromToken(String token) {
-        return parser().parseSignedClaims(token).getPayload().getSubject();
+        return Jwts.parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .getSubject();
     }
 
     public boolean validateToken(String token) {
@@ -88,7 +101,7 @@ public class JwtUtils {
     }
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret.trim());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

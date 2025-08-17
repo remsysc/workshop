@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,12 +27,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @RequiredArgsConstructor
+@EnableMethodSecurity
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+
+    @Value("${api.prefix}")
+    private String apiPrefix;
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -52,24 +57,33 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth ->
                 auth
-                    .requestMatchers("/auth/**", "/docs/**", "/health")
+                    .requestMatchers(apiPrefix + "/auth/**")
                     .permitAll()
-                    .requestMatchers("/api/admin/**")
+                    .requestMatchers(apiPrefix + "/admin/**")
                     .hasRole("ADMIN")
-                    .requestMatchers("/api/user/**")
+                    .requestMatchers(apiPrefix + "/user/**")
                     .hasRole("USER")
-                    .requestMatchers("/api/**")
+                    .requestMatchers(apiPrefix + "/**")
                     .authenticated()
                     .anyRequest()
                     .denyAll()
             )
             .authenticationProvider(daoAuthenticationProvider)
             .addFilterBefore(
-                authTokenFilter(),
+                authTokenFilter,
                 UsernamePasswordAuthenticationFilter.class
             );
         return http.build();
     }
+
+    // @Bean
+    // public RoleHierarchy roleHierarchy() {
+    //     RoleHierarchy roleHierarchy = new RoleHierarchy(
+    //         "ROLE_ADMIN",
+    //         "ROLE_USER",
+    //         "ROLE_VIEWER"
+    //     );
+    // }
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(
@@ -88,11 +102,6 @@ public class SecurityConfig {
         @NonNull AuthenticationConfiguration authConfig
     ) throws Exception {
         return authConfig.getAuthenticationManager();
-    }
-
-    @Bean
-    public AuthTokenFilter authTokenFilter() {
-        return new AuthTokenFilter();
     }
 
     @Bean

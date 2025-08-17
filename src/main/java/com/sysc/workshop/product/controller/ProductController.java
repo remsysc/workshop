@@ -3,6 +3,8 @@ package com.sysc.workshop.product.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+import com.sysc.workshop.core.annotation.IsAdmin;
+import com.sysc.workshop.core.annotation.IsViewer;
 import com.sysc.workshop.core.response.ApiResponse;
 import com.sysc.workshop.product.dto.common.PagedResponseDTO;
 import com.sysc.workshop.product.dto.product.ProductDto;
@@ -35,6 +37,7 @@ public class ProductController {
 
     private final IProductService iProductService;
 
+    @IsViewer
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<SearchProductResponseDTO>> searchProducts(
         @Valid SearchProductRequestDTO request
@@ -51,6 +54,7 @@ public class ProductController {
         );
     }
 
+    @IsViewer
     @GetMapping
     public ResponseEntity<
         ApiResponse<PagedResponseDTO<ProductDto>>
@@ -66,6 +70,7 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success("Success", products));
     }
 
+    @IsViewer
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDto>> getProductById(
         @Valid @PathVariable UUID id
@@ -76,6 +81,7 @@ public class ProductController {
         );
     }
 
+    @IsAdmin
     @PostMapping
     public ResponseEntity<ApiResponse<ProductDto>> addProduct(
         @Valid @RequestBody AddProductRequest request
@@ -89,6 +95,7 @@ public class ProductController {
         );
     }
 
+    @IsAdmin
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDto>> updateProduct(
         @Valid @RequestBody UpdateProductRequest request,
@@ -100,6 +107,7 @@ public class ProductController {
         );
     }
 
+    @IsAdmin
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProductById(
         @Valid @PathVariable UUID id

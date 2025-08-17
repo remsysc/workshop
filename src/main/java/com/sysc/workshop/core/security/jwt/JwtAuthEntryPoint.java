@@ -11,7 +11,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-@Component
 /*
 Runs only on unauthenticated access attempts.
 Instead of Spring’s default (redirect to login page), it:
@@ -19,7 +18,7 @@ Sets Content-Type to JSON.
 Sets status to 401 UNAUTHORIZED.
 Writes a structured JSON body:
 */
-
+@Component
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper;

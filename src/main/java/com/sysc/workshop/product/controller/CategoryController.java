@@ -2,6 +2,8 @@ package com.sysc.workshop.product.controller;
 
 import static org.springframework.http.HttpStatus.OK;
 
+import com.sysc.workshop.core.annotation.IsAdmin;
+import com.sysc.workshop.core.annotation.IsViewer;
 import com.sysc.workshop.core.response.ApiResponse;
 import com.sysc.workshop.product.dto.category.CategoryDto;
 import com.sysc.workshop.product.dto.category.SearchCategoryRequestDTO;
@@ -32,6 +34,7 @@ public class CategoryController {
 
     private final ICategoryService iCategoryService;
 
+    @IsViewer
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getAllCategories() {
         List<CategoryDto> categories = iCategoryService.getAllCategories();
@@ -40,6 +43,7 @@ public class CategoryController {
         );
     }
 
+    @IsViewer
     @GetMapping("/search")
     public ResponseEntity<
         ApiResponse<SearchCategoryResponseDTO>
@@ -59,6 +63,7 @@ public class CategoryController {
         );
     }
 
+    @IsAdmin
     @PostMapping
     public ResponseEntity<ApiResponse<CategoryDto>> addCategory(
         @Valid @RequestParam String name
@@ -69,6 +74,7 @@ public class CategoryController {
         );
     }
 
+    @IsAdmin
     @PutMapping("/{productId}")
     public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(
         @Valid @RequestParam String name,
@@ -80,6 +86,7 @@ public class CategoryController {
         );
     }
 
+    @IsAdmin
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryDto>> deleteCategoryById(
         @Valid @PathVariable UUID id
@@ -90,6 +97,7 @@ public class CategoryController {
         );
     }
 
+    @IsAdmin
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryDto>> getCategoryById(
         @Valid @PathVariable UUID id
