@@ -20,5 +20,7 @@ public class WorkshopApplication {
     // TODO: Add exceptions of security to global Advice
     // DONE: create auth controller and log in request for login / logout
     // TODO: finish this back end with relative simple security
-    // FUCK IM ALMOST DONE WITH THIS BACK END!!!!!!!!
+    // FUCK IM ALMOST DONE WITH THIS BACK END!!!!!!!
+    // !
+    // s
 }
