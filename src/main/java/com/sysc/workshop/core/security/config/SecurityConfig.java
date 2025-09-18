@@ -34,94 +34,81 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    @Value("${api.prefix}")
-    private String apiPrefix;
+  @Value("${api.prefix}")
+  private String apiPrefix;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-        @NonNull HttpSecurity http,
-        DaoAuthenticationProvider daoAuthenticationProvider,
-        JwtAuthEntryPoint authEntryPoint,
-        AuthTokenFilter authTokenFilter,
-        AccessDeniedHandler accessDeniedHandler
-    ) throws Exception {
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .exceptionHandling(exception ->
-                exception
-                    .authenticationEntryPoint(authEntryPoint)
-                    .accessDeniedHandler(accessDeniedHandler)
-            )
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth ->
-                auth
-                    .requestMatchers(apiPrefix + "/auth/**")
-                    .permitAll()
-                    .requestMatchers(apiPrefix + "/admin/**")
-                    .hasRole("ADMIN")
-                    .requestMatchers(apiPrefix + "/user/**")
-                    .hasRole("USER")
-                    .requestMatchers(apiPrefix + "/**")
-                    .authenticated()
-                    .anyRequest()
-                    .denyAll()
-            )
-            .authenticationProvider(daoAuthenticationProvider)
-            .addFilterBefore(
-                authTokenFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(
+      @NonNull HttpSecurity http,
+      DaoAuthenticationProvider daoAuthenticationProvider,
+      JwtAuthEntryPoint authEntryPoint,
+      AuthTokenFilter authTokenFilter,
+      AccessDeniedHandler accessDeniedHandler) throws Exception {
+    http
+        .csrf(AbstractHttpConfigurer::disable)
+        .exceptionHandling(exception -> exception
+            .authenticationEntryPoint(authEntryPoint)
+            .accessDeniedHandler(accessDeniedHandler))
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(apiPrefix + "/auth/**")
+            .permitAll()
+            .requestMatchers(apiPrefix + "/admin/**")
+            .hasRole("ADMIN")
+            .requestMatchers(apiPrefix + "/user/**")
+            .hasRole("USER")
+            .requestMatchers(apiPrefix + "/**")
+            .authenticated()
+            .anyRequest()
+            .denyAll())
+        .authenticationProvider(daoAuthenticationProvider)
+        .addFilterBefore(
+            authTokenFilter,
+            UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
 
-    // @Bean
-    // public RoleHierarchy roleHierarchy() {
-    //     RoleHierarchy roleHierarchy = new RoleHierarchy(
-    //         "ROLE_ADMIN",
-    //         "ROLE_USER",
-    //         "ROLE_VIEWER"
-    //     );
-    // }
+  // @Bean
+  // public RoleHierarchy roleHierarchy() {
+  // RoleHierarchy roleHierarchy = new RoleHierarchy(
+  // "ROLE_ADMIN",
+  // "ROLE_USER",
+  // "ROLE_VIEWER"
 
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider(
-        SecurityUserDetailsService userDetailsService,
-        PasswordEncoder passwordEncoder
-    ) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(
-            userDetailsService
-        );
-        provider.setPasswordEncoder(passwordEncoder);
-        return provider;
-    }
+  @Bean
+  public DaoAuthenticationProvider daoAuthenticationProvider(
+      SecurityUserDetailsService userDetailsService,
+      PasswordEncoder passwordEncoder) {
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider(
+        userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder);
+    return provider;
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-        @NonNull AuthenticationConfiguration authConfig
-    ) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(
+      @NonNull AuthenticationConfiguration authConfig) throws Exception {
+    return authConfig.getAuthenticationManager();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public AccessDeniedHandler accessDeniedHandler(ObjectMapper mapper) {
-        return (request, response, ex) -> {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+  @Bean
+  public AccessDeniedHandler accessDeniedHandler(ObjectMapper mapper) {
+    return (request, response, ex) -> {
+      response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-            Map<String, Object> body = new LinkedHashMap<>();
-            body.put("timestamp", Instant.now());
-            body.put("status", HttpServletResponse.SC_FORBIDDEN);
-            body.put("error", "Forbidden");
-            body.put("message", ex.getMessage());
-            body.put("path", request.getServletPath());
-            mapper.writeValue(response.getOutputStream(), body);
-        };
-    }
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("timestamp", Instant.now());
+      body.put("status", HttpServletResponse.SC_FORBIDDEN);
+      body.put("error", "Forbidden");
+      body.put("message", ex.getMessage());
+      body.put("path", request.getServletPath());
+      mapper.writeValue(response.getOutputStream(), body);
+    };
+  }
 }
